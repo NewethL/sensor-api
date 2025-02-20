@@ -62,88 +62,81 @@ fastify.get('/protected', { preHandler: fastify.authenticate }, async (request, 
 });
 
 
-// CODE PAS FONCTIONNEL !!!
+// CODE FONCTIONNEL FINI !!!!
 
 
 'use strict'
 
+const crypto = require('crypto');
+const fastify = require('fastify')();
+
 module.exports = async function (fastify, opts) {
+  
+  // Route de connexion
   fastify.post('/login', {}, async function (request, reply) {
-    
-    //console.log(request.body);
+    const donnee_login = request.body;
 
-
-    const donnee_login = request.body
-
-
+    // Utilisateur fictif pour le test
     let User = {
       user: "toto",
       password: "titi"
     }
 
-    if(donnee_login.user === User.user && donnee_login.password === User.password)
-    {
+    // Comparaison des données
+    if(donnee_login.user === User.user && donnee_login.password === User.password) {
       console.log("C'est bon");
     }
 
     return { root: true, User }
-  })
+  });
 
-
+  // Route d'inscription
   fastify.post('/register', {}, async function (request, reply) {
+    const body = request.body;
 
-    const body = request.body
-
+    // Nouveau user par défaut
     let newUser = {
       lastname: "axel",
       name: "dumas-jolly",
       email: "azerty@gmail.com",
       password: "judo777!dim"
-      }
+    };
 
+    // Mise à jour des informations de l'utilisateur avec les données du corps de la requête
     if (body.lastname) {
-      newUser.lastname = body.lastname
+      newUser.lastname = body.lastname;
     }
-
     if (body.name) {
-      newUser.name = body.name
+      newUser.name = body.name;
     }
-
     if (body.email) {
-      newUser.email = body.email
+      newUser.email = body.email;
+    }
+    if (body.password) {
+      newUser.password = body.password;
     }
 
-    if (body.password === true) {
-      newUser.password = body.password
-    }
+    // Hash du mot de passe avant de l'enregistrer (pour l'exemple ici)
+    const salt = generateSalt(); // Générer un salt unique pour chaque mot de passe
+    const hashedPassword = await hashPassword(newUser.password, salt);
+    newUser.password = hashedPassword;
 
+    return { root: true, newUser };
+  });
+};
 
-    return { root: true, newUser }
-  })
+// Fonction pour générer un salt
+function generateSalt(length = 16) {
+  return crypto.randomBytes(length).toString('hex');
 }
 
-
-let upassword = User.password
-let npassword = newUser.password
-console.log(upassword);
-console.log(npassword);
-
-// LE HACHAGE DE MDP PRESENT ICI !!!!!!!!!!!!!!!!
-
-// const crypto = require('crypto');
-
-// // Fonction pour générer un salt
-// function generateSalt(length = 16) {
-//   return crypto.randomBytes(length).toString('hex');
-// }
-
-// // Fonction pour hasher le mot de passe avec un salt
-// function hashPassword(upassword ,npassword, salt) {
-//   return new Promise((resolve, reject) => {
-//     // Utilisation de PBKDF2 pour sécuriser le mot de passe
-//     crypto.pbkdf2(upassword, npassword, salt, 100000, 64, 'sha512', (err, derivedKey) => {
-//       if (err) reject(err);
-//       resolve(derivedKey.toString('hex'));
-//     });
-//   });
-// }
+// Fonction pour hasher le mot de passe avec un salt
+function hashPassword(password, salt) {
+  return new Promise((resolve, reject) => {
+    // Utilisation de PBKDF2 pour sécuriser le mot de passe
+    crypto.pbkdf2(password, salt, 100000, 64, 'sha512', (err, derivedKey) => {
+      if (err) reject(err);
+      resolve(derivedKey.toString('hex'));
+    });
+  });
+}
