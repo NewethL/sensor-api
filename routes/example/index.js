@@ -60,3 +60,90 @@ fastify.decorate("authenticate", async (request, reply) => {
 fastify.get('/protected', { preHandler: fastify.authenticate }, async (request, reply) => {
   return { message: 'Accès autorisé', user: request.user };
 });
+
+
+// CODE PAS FONCTIONNEL !!!
+
+
+'use strict'
+
+module.exports = async function (fastify, opts) {
+  fastify.post('/login', {}, async function (request, reply) {
+    
+    //console.log(request.body);
+
+
+    const donnee_login = request.body
+
+
+    let User = {
+      user: "toto",
+      password: "titi"
+    }
+
+    if(donnee_login.user === User.user && donnee_login.password === User.password)
+    {
+      console.log("C'est bon");
+    }
+
+    return { root: true, User }
+  })
+
+
+  fastify.post('/register', {}, async function (request, reply) {
+
+    const body = request.body
+
+    let newUser = {
+      lastname: "axel",
+      name: "dumas-jolly",
+      email: "azerty@gmail.com",
+      password: "judo777!dim"
+      }
+
+    if (body.lastname) {
+      newUser.lastname = body.lastname
+    }
+
+    if (body.name) {
+      newUser.name = body.name
+    }
+
+    if (body.email) {
+      newUser.email = body.email
+    }
+
+    if (body.password === true) {
+      newUser.password = body.password
+    }
+
+
+    return { root: true, newUser }
+  })
+}
+
+
+let upassword = User.password
+let npassword = newUser.password
+console.log(upassword);
+console.log(npassword);
+
+// LE HACHAGE DE MDP PRESENT ICI !!!!!!!!!!!!!!!!
+
+// const crypto = require('crypto');
+
+// // Fonction pour générer un salt
+// function generateSalt(length = 16) {
+//   return crypto.randomBytes(length).toString('hex');
+// }
+
+// // Fonction pour hasher le mot de passe avec un salt
+// function hashPassword(upassword ,npassword, salt) {
+//   return new Promise((resolve, reject) => {
+//     // Utilisation de PBKDF2 pour sécuriser le mot de passe
+//     crypto.pbkdf2(upassword, npassword, salt, 100000, 64, 'sha512', (err, derivedKey) => {
+//       if (err) reject(err);
+//       resolve(derivedKey.toString('hex'));
+//     });
+//   });
+// }
